@@ -10,8 +10,8 @@ createRoot(document.getElementById("app") as HTMLElement).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/" element={<Login />} />
-        <Route path="/" element={<RecuperarSenha />} />
+        <Route path="/Login" element={<Login />} />
+        <Route path="/RecuperarSenha" element={<RecuperarSenha />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
