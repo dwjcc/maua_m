@@ -25,7 +25,7 @@ export const Home = (): JSX.Element => {
         <div className="absolute w-[345px] h-[60px] top-[565px] left-[23px]">
           <Button 
             className="w-full h-[60px] bg-[#0052a4] rounded-[50px] hover:bg-[#0052a4]/90"
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/Login")}
           >
             <span className="[font-family:'League_Spartan',Helvetica] font-semibold text-[#f1f1f1] text-4xl tracking-[0] leading-normal whitespace-nowrap">
               ENTRE
