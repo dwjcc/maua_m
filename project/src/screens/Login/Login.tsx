@@ -1,55 +1,93 @@
-import { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { ArrowLeftIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
 
 export const Login = (): JSX.Element => {
-  const [shouldNavigate, setShouldNavigate] = useState(false);
+  const navigate = useNavigate();
 
-  const handleLogin = () => {
-    // Add your login logic here
-    setShouldNavigate(true);
-  };
-
-  if (shouldNavigate) {
-    return <Navigate to="/dashboard" />;
-  }
+  // Data for input fields to enable mapping
+  const inputFields = [
+    {
+      id: "email",
+      label: "Insira seu e-mail",
+      placeholder: "E-mail",
+      type: "email",
+      top: "160px",
+    },
+    {
+      id: "password",
+      label: "Insira sua senha",
+      placeholder: "Senha",
+      type: "password",
+      top: "300px",
+    },
+  ];
 
   return (
-    <main className="bg-[#f1f1f1] flex flex-row justify-center w-full min-h-screen">
+    <div className="bg-[#f1f1f1] flex flex-row justify-center w-full">
       <div className="bg-[#f1f1f1] w-[390px] h-[844px] relative">
-        <header className="absolute w-[312px] h-[66px] top-[125px] left-[41px] text-center">
-          <h1 className="absolute top-0 left-0 [font-family:'League_Spartan',Helvetica] font-semibold text-[#0052a4] text-5xl tracking-[0] leading-[normal] whitespace-nowrap">
-            MAUÁ MOOVE
-          </h1>
-          <p className="absolute w-[298px] top-11 left-[5px] [font-family:'League_Spartan',Helvetica] font-semibold text-[#0052a4] text-2xl tracking-[0] leading-[normal]">
-            Seu aplicativo de mobilidade
-          </p>
-        </header>
-
-        <img
-          className="absolute w-[276px] h-[276px] top-60 left-[57px]"
-          alt="Mauá Moove Logo"
-          src="/image-removebg-preview--1--1.png"
-        />
-
-        <div className="absolute w-[345px] h-[60px] top-[565px] left-[23px]">
-          <Button 
-            className="relative w-[343px] h-[60px] bg-[#0052a4] rounded-[50px] hover:bg-[#0052a4]/90"
-            onClick={handleLogin}
-          >
-            <span className="[font-family:'League_Spartan',Helvetica] font-semibold text-[#f1f1f1] text-4xl tracking-[0] leading-[normal] whitespace-nowrap">
-              ENTRE
-            </span>
-          </Button>
-        </div>
-
+        {/* Back button */}
         <Button
-          variant="link"
-          className="absolute top-[662px] left-[118px] [font-family:'League_Spartan',Helvetica] font-bold text-[#0052a4] text-3xl tracking-[0] leading-[normal] whitespace-nowrap p-0 h-auto"
+          variant="ghost"
+          className="w-11 h-11 top-9 bg-[#d9d9d9] rounded-[22px] absolute left-[23px] p-0"
+          aria-label="Go back"
+          onClick={() => navigate(-1)}
         >
-          Cadastre-se
+          <ArrowLeftIcon className="w-[42px] h-[42px]" />
         </Button>
+
+        <form className="flex flex-col">
+          {/* Input fields */}
+          {inputFields.map((field) => (
+            <div
+              key={field.id}
+              className="w-[345px] absolute left-[23px]"
+              style={{ top: field.top }}
+            >
+              <div className="[font-family:'League_Spartan',Helvetica] font-semibold text-[#0052a4] text-[28px] tracking-[0] leading-[normal] whitespace-nowrap">
+                {field.label}
+              </div>
+              <Input
+                type={field.type}
+                id={field.id}
+                className="bg-[#d9d9d9] w-[343px] h-[60px] rounded-[50px] mt-4 pl-5 opacity-80 [font-family:'League_Spartan',Helvetica] font-semibold text-[#f1f1f1] text-[32px] tracking-[0] leading-[normal]"
+                placeholder={field.placeholder}
+              />
+            </div>
+          ))}
+
+          {/* Forgot password link */}
+          <Button
+            variant="link"
+            className="absolute top-[464px] left-[169px] [font-family:'League_Spartan',Helvetica] font-semibold text-[#0052a4] text-xl tracking-[0] leading-[normal] whitespace-nowrap p-0"
+            onClick={() => navigate("/RecuperarSenha")}
+          >
+            Esqueci minha senha
+          </Button>
+
+          {/* Sign up link */}
+          <Button
+            variant="link"
+            className="absolute top-[554px] left-[72px] [font-family:'League_Spartan',Helvetica] font-semibold text-[#0052a4] text-xl tracking-[0] leading-[normal] whitespace-nowrap p-0"
+            onClick={() => navigate("/signup")}
+          >
+            Não tem conta? Cadastre-se
+          </Button>
+
+          {/* Login button */}
+          <Button
+            type="submit"
+            className="absolute w-[343px] h-[60px] top-[590px] left-[23px] bg-[#0052a4] rounded-[50px] [font-family:'League_Spartan',Helvetica] font-semibold text-[#f1f1f1] text-4xl tracking-[0] leading-[normal]"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/dashboard");
+            }}
+          >
+            ENTRAR
+          </Button>
+        </form>
       </div>
-    </main>
+    </div>
   );
 };
