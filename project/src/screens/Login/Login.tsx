@@ -70,7 +70,7 @@ export const Login = (): JSX.Element => {
           <Button
             variant="link"
             className="absolute top-[554px] left-[72px] [font-family:'League_Spartan',Helvetica] font-semibold text-[#0052a4] text-xl tracking-[0] leading-[normal] whitespace-nowrap p-0"
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate("/Cadastro")}
           >
             Não tem conta? Cadastre-se
           </Button>

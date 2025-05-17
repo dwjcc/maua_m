@@ -36,7 +36,7 @@ export const Home = (): JSX.Element => {
         <Button
           variant="link"
           className="absolute top-[662px] left-[118px] [font-family:'League_Spartan',Helvetica] font-bold text-[#0052a4] text-3xl tracking-[0] leading-normal whitespace-nowrap p-0"
-          onClick={() => navigate("/register")}
+          onClick={() => navigate("/Cadastro")}
         >
           Cadastre-se
         </Button>
