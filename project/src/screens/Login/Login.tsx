@@ -81,7 +81,7 @@ export const Login = (): JSX.Element => {
             className="absolute w-[343px] h-[60px] top-[590px] left-[23px] bg-[#0052a4] rounded-[50px] [font-family:'League_Spartan',Helvetica] font-semibold text-[#f1f1f1] text-4xl tracking-[0] leading-[normal]"
             onClick={(e) => {
               e.preventDefault();
-              navigate("/dashboard");
+              navigate("/HomeScreen");
             }}
           >
             ENTRAR

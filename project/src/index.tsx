@@ -5,6 +5,7 @@ import { RecuperarSenha } from "./screens/RecuperarSenha";
 import { Login } from "./screens/Login";
 import { Home } from "./screens/Home";
 import { Cadastro } from "./screens/Cadastro";
+import { HomeScreen } from "./screens/HomeScreen";
 
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
@@ -14,6 +15,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
         <Route path="/Login" element={<Login />} />
         <Route path="/RecuperarSenha" element={<RecuperarSenha />} />
         <Route path="/Cadastro" element={<Cadastro />} />
+        <Route path="/HomeScreen" element={<HomeScreen />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
