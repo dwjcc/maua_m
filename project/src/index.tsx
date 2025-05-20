@@ -6,6 +6,7 @@ import { Login } from "./screens/Login";
 import { Home } from "./screens/Home";
 import { Cadastro } from "./screens/Cadastro";
 import { HomeScreen } from "./screens/HomeScreen";
+import { FilaVirtual } from "./screens/FilaVirtual";
 
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
@@ -16,6 +17,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
         <Route path="/RecuperarSenha" element={<RecuperarSenha />} />
         <Route path="/Cadastro" element={<Cadastro />} />
         <Route path="/HomeScreen" element={<HomeScreen />} />
+        <Route path="/FilaVirtual" element={<FilaVirtual/>} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

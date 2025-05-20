@@ -32,7 +32,7 @@ export const HomeScreen = (): JSX.Element => {
 
           {/* Enter Queue Button */}
           <Button 
-            onClick={() => navigate("/queue")}
+            onClick={() => navigate("/FilaVirtual")}
             className="absolute w-[370px] h-[65px] bottom-5 left-2.5 bg-[#0052a4] rounded-[50px] hover:bg-[#0052a4]/90"
           >
             <span className="font-['League_Spartan',Helvetica] font-semibold text-white text-[32px]">
