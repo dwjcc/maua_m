@@ -64,7 +64,7 @@ export const HomeScreen = (): JSX.Element => {
               </Button>
               <Button
                 className="w-full bg-[#0077c2] text-white rounded-[20px] text-lg"
-                onClick={() => { setShowPanel(false); navigate("/itinerarios"); }}
+                onClick={() => { setShowPanel(false); navigate("/Itinerarios"); }}
               >
                 Itinerários
               </Button>
@@ -94,7 +94,7 @@ export const HomeScreen = (): JSX.Element => {
 
           {/* User Profile Button */}
           <Card 
-            onClick={() => navigate("/profile")}
+            onClick={() => navigate("/Perfil")}
             className="absolute w-16 h-16 top-[29px] right-[16px] bg-[#d9d9d9] rounded-[32px] flex items-center justify-center p-0 border-none cursor-pointer hover:bg-[#c9c9c9]"
           >
             <img
