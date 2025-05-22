@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { Button } from "../../components/ui/button";
@@ -15,6 +16,10 @@ const mapStyles = {
 
 export const HomeScreen = (): JSX.Element => {
   const navigate = useNavigate();
+  const [showPanel, setShowPanel] = useState(false);
+
+  const handleOpenPanel = () => setShowPanel(true);
+  const handleClosePanel = () => setShowPanel(false);
 
   return (
     <div className="bg-white flex flex-row justify-center w-full">
@@ -32,13 +37,52 @@ export const HomeScreen = (): JSX.Element => {
 
           {/* Enter Queue Button */}
           <Button 
-            onClick={() => navigate("/FilaVirtual")}
-            className="absolute w-[370px] h-[65px] bottom-5 left-2.5 bg-[#0052a4] rounded-[50px] hover:bg-[#0052a4]/90"
+            onClick={handleOpenPanel}
+            className="absolute w-[370px] h-[65px] bottom-5 left-2.5 bg-[#0052a4] rounded-[50px] hover:bg-[#0052a4]/90 z-20"
           >
             <span className="font-['League_Spartan',Helvetica] font-semibold text-white text-[32px]">
               ENTRAR NA FILA
             </span>
           </Button>
+
+          {/* Sliding Up Panel */}
+          <div
+            className={`
+              fixed left-1/2 -translate-x-1/2 bottom-0 w-[390px] bg-[#0052a4] rounded-t-[32px] shadow-lg z-30
+              transition-transform duration-500
+              ${showPanel ? "translate-y-0" : "translate-y-full"}
+            `}
+            style={{ height: "320px" }}
+          >
+            <div className="flex flex-col items-center justify-center h-full p-6 gap-4">
+              <h2 className="text-2xl font-bold mb-2 text-white">O que deseja fazer?</h2>
+              <Button
+                className="w-full bg-white text-[#0052a4] rounded-[20px] text-lg"
+                onClick={() => { setShowPanel(false); navigate("/FilaVirtual"); }}
+              >
+                Entrar na Fila
+              </Button>
+              <Button
+                className="w-full bg-[#0077c2] text-white rounded-[20px] text-lg"
+                onClick={() => { setShowPanel(false); navigate("/itinerarios"); }}
+              >
+                Itinerários
+              </Button>
+              <Button
+                className="w-full bg-[#009688] text-white rounded-[20px] text-lg"
+                onClick={() => { setShowPanel(false); navigate("/informacoes"); }}
+              >
+                Informações
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full rounded-[20px] text-white border border-white mt-2"
+                onClick={handleClosePanel}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
 
           {/* Location Button */}
           <Card 
