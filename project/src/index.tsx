@@ -9,6 +9,7 @@ import { HomeScreen } from "./screens/HomeScreen";
 import { FilaVirtual } from "./screens/FilaVirtual";
 import { Perfil } from "./screens/Perfil";
 import { Itinerarios } from "./screens/Itinerarios";
+import { FaqContato } from "./screens/FaqContato/FaqContato";
 
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
@@ -22,6 +23,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
         <Route path="/FilaVirtual" element={<FilaVirtual/>} />
         <Route path="/Perfil" element={<Perfil />} />
         <Route path="/Itinerarios" element={<Itinerarios />} />
+        <Route path="/FaqContato" element={<FaqContato />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

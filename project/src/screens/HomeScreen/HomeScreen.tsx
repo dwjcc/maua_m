@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { Button } from "../../components/ui/button";
@@ -70,7 +70,7 @@ export const HomeScreen = (): JSX.Element => {
               </Button>
               <Button
                 className="w-full bg-[#009688] text-white rounded-[20px] text-lg"
-                onClick={() => { setShowPanel(false); navigate("/informacoes"); }}
+                onClick={() => { setShowPanel(false); navigate("/FaqContato"); }}
               >
                 Informações
               </Button>
