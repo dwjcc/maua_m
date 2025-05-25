@@ -2,9 +2,45 @@ import { ArrowLeftIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
+import { useState } from "react";
+import authService from "../../services/authService";
 
 export const Login = (): JSX.Element => {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Handle input change
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData({
+      ...formData,
+      [id]: value,
+    });
+  };
+
+  // Handle login submission
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+
+    try {
+      await authService.login(formData.email, formData.password);
+      navigate("/HomeScreen");
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message ||
+          "Falha no login. Verifique suas credenciais."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Data for input fields to enable mapping
   const inputFields = [
@@ -14,6 +50,7 @@ export const Login = (): JSX.Element => {
       placeholder: "E-mail",
       type: "email",
       top: "160px",
+      value: formData.email,
     },
     {
       id: "password",
@@ -21,6 +58,7 @@ export const Login = (): JSX.Element => {
       placeholder: "Senha",
       type: "password",
       top: "300px",
+      value: formData.password,
     },
   ];
 
@@ -37,7 +75,7 @@ export const Login = (): JSX.Element => {
           <ArrowLeftIcon className="w-[42px] h-[42px]" />
         </Button>
 
-        <form className="flex flex-col">
+        <form className="flex flex-col" onSubmit={handleLogin}>
           {/* Input fields */}
           {inputFields.map((field) => (
             <div
@@ -53,12 +91,22 @@ export const Login = (): JSX.Element => {
                 id={field.id}
                 className="bg-[#d9d9d9] w-[343px] h-[60px] rounded-[50px] mt-4 pl-5 opacity-80 [font-family:'League_Spartan',Helvetica] font-semibold text-[#f1f1f1] text-[32px] tracking-[0] leading-[normal]"
                 placeholder={field.placeholder}
+                value={field.value}
+                onChange={handleChange}
               />
             </div>
           ))}
 
+          {/* Error message */}
+          {error && (
+            <div className="absolute top-[420px] left-[23px] w-[343px] text-red-500 text-center">
+              {error}
+            </div>
+          )}
+
           {/* Forgot password link */}
           <Button
+            type="button"
             variant="link"
             className="absolute top-[464px] left-[169px] [font-family:'League_Spartan',Helvetica] font-semibold text-[#0052a4] text-xl tracking-[0] leading-[normal] whitespace-nowrap p-0"
             onClick={() => navigate("/RecuperarSenha")}
@@ -68,6 +116,7 @@ export const Login = (): JSX.Element => {
 
           {/* Sign up link */}
           <Button
+            type="button"
             variant="link"
             className="absolute top-[554px] left-[72px] [font-family:'League_Spartan',Helvetica] font-semibold text-[#0052a4] text-xl tracking-[0] leading-[normal] whitespace-nowrap p-0"
             onClick={() => navigate("/Cadastro")}
@@ -79,12 +128,9 @@ export const Login = (): JSX.Element => {
           <Button
             type="submit"
             className="absolute w-[343px] h-[60px] top-[590px] left-[23px] bg-[#0052a4] rounded-[50px] [font-family:'League_Spartan',Helvetica] font-semibold text-[#f1f1f1] text-4xl tracking-[0] leading-[normal]"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate("/HomeScreen");
-            }}
+            disabled={isLoading}
           >
-            ENTRAR
+            {isLoading ? "CARREGANDO..." : "ENTRAR"}
           </Button>
         </form>
       </div>

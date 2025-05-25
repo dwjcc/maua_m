@@ -20,11 +20,11 @@ createRoot(document.getElementById("app") as HTMLElement).render(
         <Route path="/RecuperarSenha" element={<RecuperarSenha />} />
         <Route path="/Cadastro" element={<Cadastro />} />
         <Route path="/HomeScreen" element={<HomeScreen />} />
-        <Route path="/FilaVirtual" element={<FilaVirtual/>} />
+        <Route path="/FilaVirtual" element={<FilaVirtual />} />
         <Route path="/Perfil" element={<Perfil />} />
         <Route path="/Itinerarios" element={<Itinerarios />} />
         <Route path="/FaqContato" element={<FaqContato />} />
       </Routes>
     </BrowserRouter>
-  </StrictMode>,
+  </StrictMode>
 );
