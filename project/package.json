@@ -32,12 +32,16 @@
     "react-native-svg": "^15.2.0",
     "react-router-dom": "^6.8.1",
     "react-toastify": "^11.0.5",
+    "sockjs-client": "^1.6.1",
+    "stompjs": "^2.3.3",
     "tailwind-merge": "2.5.4",
     "use-toast-notification": "^0.1.3"
   },
   "devDependencies": {
     "@types/react": "18.2.0",
     "@types/react-dom": "18.2.0",
+    "@types/sockjs-client": "^1.5.4",
+    "@types/stompjs": "^2.3.9",
     "@vitejs/plugin-react": "4.3.4",
     "babel-plugin-module-resolver": "^5.0.2",
     "esbuild": "0.24.0",

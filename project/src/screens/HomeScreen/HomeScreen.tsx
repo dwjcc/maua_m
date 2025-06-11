@@ -6,12 +6,12 @@ import { Card } from "../../components/ui/card";
 
 const defaultCenter = {
   lat: -23.6486, // Instituto Mauá de Tecnologia coordinates
-  lng: -46.5752
+  lng: -46.5752,
 };
 
 const mapStyles = {
   height: "100%",
-  width: "100%"
+  width: "100%",
 };
 
 export const HomeScreen = (): JSX.Element => {
@@ -36,7 +36,7 @@ export const HomeScreen = (): JSX.Element => {
           </LoadScript>
 
           {/* Enter Queue Button */}
-          <Button 
+          <Button
             onClick={handleOpenPanel}
             className="absolute w-[370px] h-[65px] bottom-5 left-2.5 bg-[#0052a4] rounded-[50px] hover:bg-[#0052a4]/90 z-20"
           >
@@ -55,22 +55,42 @@ export const HomeScreen = (): JSX.Element => {
             style={{ height: "320px" }}
           >
             <div className="flex flex-col items-center justify-center h-full p-6 gap-4">
-              <h2 className="text-2xl font-bold mb-2 text-white">O que deseja fazer?</h2>
+              <h2 className="text-2xl font-bold mb-2 text-white">
+                O que deseja fazer?
+              </h2>
               <Button
                 className="w-full bg-white text-[#0052a4] rounded-[20px] text-lg"
-                onClick={() => { setShowPanel(false); navigate("/FilaVirtual"); }}
+                onClick={() => {
+                  setShowPanel(false);
+                  navigate("/FilaVirtual");
+                }}
               >
                 Entrar na Fila
               </Button>
               <Button
                 className="w-full bg-[#0077c2] text-white rounded-[20px] text-lg"
-                onClick={() => { setShowPanel(false); navigate("/Itinerarios"); }}
+                onClick={() => {
+                  setShowPanel(false);
+                  navigate("/Itinerarios");
+                }}
               >
                 Itinerários
               </Button>
+              <button
+                className="w-full bg-amber-500 text-white rounded-[20px] text-lg py-3"
+                onClick={() => {
+                  setShowPanel(false);
+                  navigate("/notificacoes");
+                }}
+              >
+                Notificações
+              </button>
               <Button
                 className="w-full bg-[#009688] text-white rounded-[20px] text-lg"
-                onClick={() => { setShowPanel(false); navigate("/FaqContato"); }}
+                onClick={() => {
+                  setShowPanel(false);
+                  navigate("/FaqContato");
+                }}
               >
                 Informações
               </Button>
@@ -85,15 +105,15 @@ export const HomeScreen = (): JSX.Element => {
           </div>
 
           {/* Location Button */}
-          <Card 
-            className="absolute w-16 h-16 top-[104px] right-[16px] bg-[#d9d9d9] rounded-[32px] flex items-center justify-center p-0 border-none cursor-pointer hover:bg-[#c9c9c9]" 
+          <Card
+            className="absolute w-16 h-16 top-[104px] right-[16px] bg-[#d9d9d9] rounded-[32px] flex items-center justify-center p-0 border-none cursor-pointer hover:bg-[#c9c9c9]"
             onClick={() => alert("Location functionality coming soon!")}
           >
             <div className="relative w-[39px] h-[49px] bg-[url(/group-3.png)] bg-cover" />
           </Card>
 
           {/* User Profile Button */}
-          <Card 
+          <Card
             onClick={() => navigate("/Perfil")}
             className="absolute w-16 h-16 top-[29px] right-[16px] bg-[#d9d9d9] rounded-[32px] flex items-center justify-center p-0 border-none cursor-pointer hover:bg-[#c9c9c9]"
           >
