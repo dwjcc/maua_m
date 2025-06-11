@@ -1,121 +1,165 @@
-import { ArrowLeftIcon} from "lucide-react";
-import React, { useState } from "react";
-import { Card, CardContent } from "../../components/ui/card";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../../components/ui/button";
+import { ArrowLeftIcon, Users, CheckCircle } from "lucide-react";
+
+interface Horario {
+  id: number;
+  placa: string;
+  horario: string;
+  capacidade: number;
+}
+
+const availableSchedules: Horario[] = [
+  { id: 1, placa: "VAN-1234", horario: "23:01", capacidade: 15 },
+  { id: 2, placa: "BUS-5678", horario: "23:10", capacidade: 20 },
+  { id: 3, placa: "VAN-9876", horario: "23:30", capacidade: 15 },
+  { id: 4, placa: "VAN-4321", horario: "23:50", capacidade: 15 },
+];
 
 export const FilaVirtual = (): JSX.Element => {
   const navigate = useNavigate();
-  const [queuePosition, setQueuePosition] = useState(1);
-  const [waitingCount, setWaitingCount] = useState(5);
+  const [schedules] = useState<Horario[]>(availableSchedules);
+  const [selectedSchedule, setSelectedSchedule] = useState<Horario | null>(
+    null
+  );
+  const [queueCount, setQueueCount] = useState(0);
+  const [hasJoined, setHasJoined] = useState(false);
 
-const defaultCenter = {
-lat: -23.6486, // Instituto Mauá de Tecnologia coordinates
-lng: -46.5752
-};
-
-const mapStyles = {
-height: "100%",
-width: "100%"
-};
-
-  const onBackClick = () => {
-    navigate(-1);
+  const getCurrentDayName = () => {
+    const days = [
+      "Domingo",
+      "Segunda-feira",
+      "Terça-feira",
+      "Quarta-feira",
+      "Quinta-feira",
+      "Sexta-feira",
+      "Sábado",
+    ];
+    const todayIndex = new Date().getDay();
+    return days[todayIndex];
   };
 
-  const onProfileClick = () => {
-    navigate('/profile');
+  useEffect(() => {
+    if (schedules.length > 0) {
+      setSelectedSchedule(schedules[0]);
+    }
+  }, [schedules]);
+
+  const handleScheduleChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const scheduleId = parseInt(event.target.value, 10);
+    const schedule = schedules.find((s) => s.id === scheduleId) || null;
+    setSelectedSchedule(schedule);
+    setQueueCount(0);
+    setHasJoined(false);
   };
 
+  const handleJoinQueue = () => {
+    if (selectedSchedule && queueCount < selectedSchedule.capacidade) {
+      const isLastSchedule =
+        selectedSchedule.id ===
+        availableSchedules[availableSchedules.length - 1].id;
 
+      setQueueCount((prevCount) => prevCount + 1);
 
-  // Simulate queue updates
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      setQueuePosition((prev) => Math.max(1, prev - 1));
-      setWaitingCount((prev) => Math.max(0, prev - 1));
-    }, 30000); // Update every 30 seconds
+      if (!isLastSchedule) {
+        setHasJoined(true);
+      }
+    }
+  };
 
-    return () => clearInterval(interval);
-  }, []);
+  const progressPercentage = selectedSchedule
+    ? (queueCount / selectedSchedule.capacidade) * 100
+    : 0;
+
+  const getProgressColorClass = (percentage: number) => {
+    if (percentage < 50) return "bg-green-500";
+    if (percentage < 85) return "bg-yellow-500";
+    return "bg-red-500";
+  };
 
   return (
-    <div className="bg-[#d9d9d9] flex flex-row justify-center w-full">
-      <div className="bg-[#d9d9d9] overflow-hidden w-[390px] h-[844px] relative">
-        
-        {/* Google Maps */}
-        <LoadScript googleMapsApiKey="AIzaSyCFGRp2TK00A43bbj9gGYT8I-tP-TO5FRk">
-                    <GoogleMap
-                      mapContainerStyle={mapStyles}
-                      zoom={15}
-                      center={defaultCenter}
-                    >
-                      <Marker position={defaultCenter} />
-                    </GoogleMap>
-                  </LoadScript>
-
-        {/* UserIcon profile button */}
-        <button 
-          onClick={onProfileClick}
-          className="absolute w-16 h-16 top-[18px] right-[18px] bg-[#d9d9d9] rounded-[32px] flex items-center justify-center"
-        >
-          <img
-            className="w-[53px] h-[53px]"
-            alt="UserIcon profile"
-            src="/vector.svg"
-          />
-        </button>
-
-        {/* Location button */}
-        <Card 
-            className="absolute w-16 h-16 top-[104px] right-[16px] bg-[#d9d9d9] rounded-[32px] flex items-center justify-center p-0 border-none cursor-pointer hover:bg-[#c9c9c9]" 
-            onClick={() => alert("Location functionality coming soon!")}
+    <div className="bg-[#f1f1f1] flex flex-col items-center w-full min-h-screen p-4">
+      <div className="w-full max-w-md">
+        <header className="relative flex items-center justify-center mb-2">
+          <button
+            onClick={() => navigate(-1)}
+            className="absolute left-0 p-2 text-gray-700"
           >
-            <div className="relative w-[39px] h-[49px] bg-[url(/group-3.png)] bg-cover" />
-        </Card>
+            <ArrowLeftIcon className="h-6 w-6" />
+          </button>
+          <h1 className="text-2xl font-bold text-gray-800 font-['League_Spartan',Helvetica]">
+            Fila Virtual
+          </h1>
+        </header>
 
-        {/* Back button */}
-        <Button
-          variant="ghost"
-          className="absolute w-11 h-11 top-[38px] left-[23px] p-0 bg-[#d9d9d9] rounded-[22px]"
-            onClick={onBackClick}
-        >
-          <ArrowLeftIcon className="w-[42px] h-[42px]" />
-        </Button>
+        <p className="text-center text-lg text-gray-600 mb-4 font-semibold">
+          {getCurrentDayName()}
+        </p>
 
-        {/* Queue information card */}
-        <Card className="absolute w-[390px] bottom-0 left-0 bg-[#0052a4] rounded-t-[50px] border-none text-white">
-          <CardContent className="p-8 pt-12">
-            <div className="space-y-6">
-              <h2 className="font-semibold text-[32px] font-['League_Spartan',Helvetica]">
-                Você está na fila virtual!
-              </h2>
+        <div className="bg-white p-6 rounded-xl shadow-lg">
+          <label
+            htmlFor="schedule-select"
+            className="block text-lg font-medium text-gray-700 mb-2"
+          >
+            Selecione um horário:
+          </label>
+          <select
+            id="schedule-select"
+            onChange={handleScheduleChange}
+            className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:ring-2 focus:ring-[#0052a4]"
+            value={selectedSchedule?.id || ""}
+          >
+            {schedules.map((schedule) => (
+              <option key={schedule.id} value={schedule.id}>
+                {schedule.placa} - {schedule.horario}
+              </option>
+            ))}
+          </select>
 
-              <p className="text-base text-center font-['League_Spartan',Helvetica]">
-                A fila não garante um lugar na van, ela apenas estima quantas
-                pessoas estão aguardando
-              </p>
-
-              <h3 className="font-semibold text-[32px] font-['League_Spartan',Helvetica]">
-                Seu lugar na fila é:
-              </h3>
-
-              <div className="flex justify-center">
-                <div className="w-[62px] h-[42px] bg-[#d9d9d9] rounded-[5px] flex items-center justify-center">
-                  <span className="font-semibold text-[32px] text-black font-['League_Spartan',Helvetica]">
-                    {queuePosition}
-                  </span>
+          {selectedSchedule && (
+            <div className="mt-8 text-center">
+              <div className="mb-4">
+                <div className="flex justify-between items-center text-lg font-semibold text-gray-800">
+                  <span>Interesse na Van</span>
                 </div>
+                <div className="w-full bg-gray-200 rounded-full h-8 mt-2 overflow-hidden border border-gray-300 relative">
+                  <div
+                    className={`h-full rounded-full transition-all duration-300 ease-in-out ${getProgressColorClass(
+                      progressPercentage
+                    )}`}
+                    style={{ width: `${progressPercentage}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Esta fila serve para medir o interesse no horário e não
+                  garante um lugar na van.
+                </p>
               </div>
 
-              <p className="text-2xl text-center font-medium font-['League_Spartan',Helvetica]">
-                Existem outras {waitingCount} pessoas aguardando
-                embarque
-              </p>
+              <button
+                onClick={handleJoinQueue}
+                disabled={
+                  hasJoined || queueCount >= selectedSchedule.capacidade
+                }
+                className="w-full bg-[#0052a4] text-white font-bold py-4 px-4 rounded-lg text-xl hover:bg-[#0143ad] disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {hasJoined ? (
+                  <>
+                    <CheckCircle className="h-6 w-6" />
+                    Você entrou na Fila
+                  </>
+                ) : (
+                  <>
+                    <Users className="h-6 w-6" />
+                    Quero entrar na Fila
+                  </>
+                )}
+              </button>
             </div>
-          </CardContent>
-        </Card>
+          )}
+        </div>
       </div>
     </div>
   );

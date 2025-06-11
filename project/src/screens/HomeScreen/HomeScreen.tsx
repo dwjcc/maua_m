@@ -1,11 +1,19 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
-import { Button } from "../../components/ui/button";
-import { Card } from "../../components/ui/card";
+import {
+  ArrowRight,
+  ChevronUp,
+  Map,
+  User,
+  Ticket,
+  ClipboardList,
+  MessageSquare,
+  Bell,
+} from "lucide-react";
 
 const defaultCenter = {
-  lat: -23.6486, // Instituto Mauá de Tecnologia coordinates
+  lat: -23.6486,
   lng: -46.5752,
 };
 
@@ -21,6 +29,32 @@ export const HomeScreen = (): JSX.Element => {
   const handleOpenPanel = () => setShowPanel(true);
   const handleClosePanel = () => setShowPanel(false);
 
+  const ActionButton = ({
+    icon,
+    label,
+    navigateTo,
+    colorClass = "bg-white/20 hover:bg-white/30",
+  }: {
+    icon: React.ReactNode;
+    label: string;
+    navigateTo: string;
+    colorClass?: string;
+  }) => (
+    <button
+      onClick={() => {
+        setShowPanel(false);
+        navigate(navigateTo);
+      }}
+      className={`w-full flex items-center justify-between p-4 rounded-xl text-white font-semibold text-lg transition-all duration-300 ${colorClass}`}
+    >
+      <div className="flex items-center gap-4">
+        {icon}
+        <span>{label}</span>
+      </div>
+      <ArrowRight className="h-5 w-5" />
+    </button>
+  );
+
   return (
     <div className="bg-white flex flex-row justify-center w-full">
       <div className="bg-white w-[390px] h-[844px]">
@@ -35,94 +69,75 @@ export const HomeScreen = (): JSX.Element => {
             </GoogleMap>
           </LoadScript>
 
-          {/* Enter Queue Button */}
-          <Button
-            onClick={handleOpenPanel}
-            className="absolute w-[370px] h-[65px] bottom-5 left-2.5 bg-[#0052a4] rounded-[50px] hover:bg-[#0052a4]/90 z-20"
-          >
-            <span className="font-['League_Spartan',Helvetica] font-semibold text-white text-[32px]">
-              ENTRAR NA FILA
-            </span>
-          </Button>
-
-          {/* Sliding Up Panel */}
-          <div
-            className={`
-              fixed left-1/2 -translate-x-1/2 bottom-0 w-[390px] bg-[#0052a4] rounded-t-[32px] shadow-lg z-30
-              transition-transform duration-500
-              ${showPanel ? "translate-y-0" : "translate-y-full"}
-            `}
-            style={{ height: "320px" }}
-          >
-            <div className="flex flex-col items-center justify-center h-full p-6 gap-4">
-              <h2 className="text-2xl font-bold mb-2 text-white">
-                O que deseja fazer?
-              </h2>
-              <Button
-                className="w-full bg-white text-[#0052a4] rounded-[20px] text-lg"
-                onClick={() => {
-                  setShowPanel(false);
-                  navigate("/FilaVirtual");
-                }}
-              >
-                Entrar na Fila
-              </Button>
-              <Button
-                className="w-full bg-[#0077c2] text-white rounded-[20px] text-lg"
-                onClick={() => {
-                  setShowPanel(false);
-                  navigate("/Itinerarios");
-                }}
-              >
-                Itinerários
-              </Button>
-              <button
-                className="w-full bg-amber-500 text-white rounded-[20px] text-lg py-3"
-                onClick={() => {
-                  setShowPanel(false);
-                  navigate("/notificacoes");
-                }}
-              >
-                Notificações
-              </button>
-              <Button
-                className="w-full bg-[#009688] text-white rounded-[20px] text-lg"
-                onClick={() => {
-                  setShowPanel(false);
-                  navigate("/FaqContato");
-                }}
-              >
-                Informações
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full rounded-[20px] text-white border border-white mt-2"
-                onClick={handleClosePanel}
-              >
-                Cancelar
-              </Button>
-            </div>
+          <div className="absolute top-6 right-4 flex flex-col gap-3 z-20">
+            <button
+              onClick={() => navigate("/Perfil")}
+              className="w-14 h-14 bg-[#0052a4] rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-colors shadow-lg"
+              aria-label="Perfil"
+            >
+              <User className="w-7 h-7" />
+            </button>
+            <button
+              onClick={() => alert("Função de localização em breve!")}
+              className="w-14 h-14 bg-[#0052a4] rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-colors shadow-lg"
+              aria-label="Minha Localização"
+            >
+              <Map className="w-7 h-7" />
+            </button>
+          </div>
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[90%] z-20">
+            <button
+              onClick={handleOpenPanel}
+              className="w-full h-[65px] bg-[#0052a4] rounded-full hover:bg-blue-700 transition-colors flex items-center justify-center gap-3 shadow-lg"
+            >
+              <span className="font-['League_Spartan',Helvetica] font-semibold text-white text-[28px]">
+                MENU DE OPÇÕES
+              </span>
+              <ChevronUp className="h-7 w-7 text-white" />
+            </button>
           </div>
 
-          {/* Location Button */}
-          <Card
-            className="absolute w-16 h-16 top-[104px] right-[16px] bg-[#d9d9d9] rounded-[32px] flex items-center justify-center p-0 border-none cursor-pointer hover:bg-[#c9c9c9]"
-            onClick={() => alert("Location functionality coming soon!")}
+          <div
+            className={`
+              fixed left-0 bottom-0 w-full bg-[#0052a4] rounded-t-[32px] shadow-2xl z-30
+              transition-transform duration-300 ease-in-out
+              ${showPanel ? "translate-y-0" : "translate-y-full"}
+            `}
           >
-            <div className="relative w-[39px] h-[49px] bg-[url(/group-3.png)] bg-cover" />
-          </Card>
+            <div
+              className="w-full py-3 flex justify-center cursor-pointer"
+              onClick={handleClosePanel}
+            >
+              <div className="w-12 h-1.5 bg-white/40 rounded-full"></div>
+            </div>
 
-          {/* User Profile Button */}
-          <Card
-            onClick={() => navigate("/Perfil")}
-            className="absolute w-16 h-16 top-[29px] right-[16px] bg-[#d9d9d9] rounded-[32px] flex items-center justify-center p-0 border-none cursor-pointer hover:bg-[#c9c9c9]"
-          >
-            <img
-              className="w-[53px] h-[53px]"
-              alt="User profile"
-              src="/vector.svg"
-            />
-          </Card>
+            <div className="p-6 pt-2 flex flex-col gap-4">
+              <h2 className="text-2xl font-bold text-center text-white mb-2">
+                O que deseja fazer?
+              </h2>
+              <ActionButton
+                icon={<Ticket className="h-6 w-6" />}
+                label="Entrar na Fila"
+                navigateTo="/FilaVirtual"
+                colorClass="bg-green-500 hover:bg-green-600"
+              />
+              <ActionButton
+                icon={<ClipboardList className="h-6 w-6" />}
+                label="Ver Itinerários"
+                navigateTo="/Itinerarios"
+              />
+              <ActionButton
+                icon={<Bell className="h-6 w-6" />}
+                label="Notificações"
+                navigateTo="/notificacoes"
+              />
+              <ActionButton
+                icon={<MessageSquare className="h-6 w-6" />}
+                label="Dúvidas e Contato"
+                navigateTo="/FaqContato"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

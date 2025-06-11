@@ -14,7 +14,6 @@ export const NotificationScreen = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Carrega as bibliotecas do WebSocket via CDN
     const loadScript = (src: string, onLoad: () => void) => {
       const script = document.createElement("script");
       script.src = src;
@@ -44,8 +43,6 @@ export const NotificationScreen = () => {
             client.connect({}, () => {
               console.log("Conectado ao WebSocket para receber notificações.");
               stompClientRef.current = client;
-
-              // Se inscreve no tópico de notificações
               client.subscribe(
                 "/topic/notifications",
                 (message: { body: string }) => {
@@ -54,7 +51,6 @@ export const NotificationScreen = () => {
                   );
                   console.log("Nova notificação recebida:", newNotification);
 
-                  // Adiciona a nova notificação no início da lista
                   setNotifications((prev) => [newNotification, ...prev]);
                 }
               );

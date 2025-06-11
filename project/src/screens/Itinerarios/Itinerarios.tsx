@@ -1,22 +1,20 @@
 import React, { useEffect, useState, useRef } from "react";
-// As bibliotecas SockJS e StompJS serão carregadas via CDN, então os imports foram removidos.
+import { useNavigate } from "react-router-dom";
 import {
   ArrowLeftIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  MapPinIcon,
+  Bus,
+  Ticket,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
-// Interface para o formato do horário que esperamos receber
 interface ScheduleItem {
   id: number;
-  tipoVeiculo: string; // Ex: "VAN" ou "MICRO_ONIBUS"
+  tipoVeiculo: string;
   placa: string;
-  horario: string; // Ex: "07:30"
+  horario: string;
 }
 
-// Mapeamento para os dias da semana em português e para o ENUM do backend
 const DIAS_SEMANA_MAP: { [key: string]: { display: string; enum: string } } = {
   seg: { display: "Segunda", enum: "SEGUNDA" },
   ter: { display: "Terça", enum: "TERCA" },
@@ -30,192 +28,230 @@ const DIAS_ORDENADOS = ["seg", "ter", "qua", "qui", "sex", "sab", "dom"];
 
 export const Itinerarios: React.FC = () => {
   const navigate = useNavigate();
-
-  const [rota, setRota] = useState("FACULDADE"); // FACULDADE ou ESTACAO
+  const [rota, setRota] = useState("FACULDADE");
   const [diaSelecionadoKey, setDiaSelecionadoKey] = useState(DIAS_ORDENADOS[0]);
   const [scheduleItems, setScheduleItems] = useState<ScheduleItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isWsConnected, setIsWsConnected] = useState(false);
-
-  const stompClientRef = useRef<any>(null); // Usando 'any' para o tipo Stomp.Client
-  const subscriptionRef = useRef<any>(null); // Usando 'any' para o tipo Stomp.Subscription
+  const stompClientRef = useRef<any>(null);
+  const subscriptionRef = useRef<any>(null);
 
   useEffect(() => {
-    // Carrega as bibliotecas do WebSocket via CDN
     const loadScript = (src: string, onLoad: () => void) => {
       const script = document.createElement("script");
       script.src = src;
       script.async = true;
       script.onload = onLoad;
       document.body.appendChild(script);
+      return script;
     };
-
-    // Garante que o objeto global exista
-    if (typeof window.global === "undefined") {
+    if (typeof (window as any).global === "undefined") {
       (window as any).global = window;
     }
-
-    loadScript(
-      "https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js",
+    const axiosScript = loadScript(
+      "https://unpkg.com/axios/dist/axios.min.js",
       () => {
-        loadScript(
-          "https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js",
+        const sockjsScript = loadScript(
+          "https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js",
           () => {
-            // Agora que os scripts foram carregados, podemos conectar
-            const SockJS = (window as any).SockJS;
-            const Stomp = (window as any).Stomp;
-
-            const socket = new SockJS("http://localhost:8080/ws");
-            const client = Stomp.over(socket);
-            client.debug = () => {};
-
-            client.connect(
-              {},
+            const stompScript = loadScript(
+              "https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js",
               () => {
-                console.log("Conectado ao WebSocket");
-                stompClientRef.current = client;
-                setIsWsConnected(true); // Atualiza o estado para disparar o outro useEffect
-              },
-              (error: any) => {
-                console.error("Erro ao conectar ao WebSocket:", error);
+                const SockJS = (window as any).SockJS;
+                const Stomp = (window as any).Stomp;
+                const socket = new SockJS("http://localhost:8080/ws");
+                const client = Stomp.over(socket);
+                client.debug = () => {};
+                client.connect(
+                  {},
+                  () => {
+                    stompClientRef.current = client;
+                    setIsWsConnected(true);
+                  },
+                  (error: any) =>
+                    console.error("Erro no WebSocket de Itinerários:", error)
+                );
               }
             );
+            return () => {
+              if (stompScript.parentNode)
+                stompScript.parentNode.removeChild(stompScript);
+            };
           }
         );
+        return () => {
+          if (sockjsScript.parentNode)
+            sockjsScript.parentNode.removeChild(sockjsScript);
+        };
       }
     );
-
     return () => {
-      if (stompClientRef.current?.connected) {
-        console.log("Desconectando do WebSocket");
+      if (stompClientRef.current?.connected)
         stompClientRef.current.disconnect(() => {});
-      }
+      if (axiosScript.parentNode)
+        axiosScript.parentNode.removeChild(axiosScript);
     };
   }, []);
 
   useEffect(() => {
-    if (isWsConnected && stompClientRef.current) {
-      if (subscriptionRef.current) {
-        subscriptionRef.current.unsubscribe();
+    const diaEnum = DIAS_SEMANA_MAP[diaSelecionadoKey].enum;
+    const cacheKey = `schedule-${rota}-${diaEnum}`;
+
+    const fetchInitialData = async () => {
+      if (!(window as any).axios) return;
+
+      setIsLoading(true);
+
+      const cachedData = sessionStorage.getItem(cacheKey);
+      if (cachedData) {
+        try {
+          const parsedData = JSON.parse(cachedData);
+          if (Array.isArray(parsedData)) {
+            setScheduleItems(parsedData);
+          }
+        } catch (e) {
+          setScheduleItems([]);
+        }
+      } else {
+        setScheduleItems([]);
       }
 
-      const diaEnum = DIAS_SEMANA_MAP[diaSelecionadoKey].enum;
-      const topic = `/topic/schedules/${rota}/${diaEnum}`;
+      try {
+        const response = await (window as any).axios.get(
+          `/api/horarios/origem/${rota}/dia/${diaEnum}`
+        );
+        const freshData = response.data;
+        if (Array.isArray(freshData)) {
+          setScheduleItems(freshData);
+          sessionStorage.setItem(cacheKey, JSON.stringify(freshData));
+        }
+      } catch (error) {
+        console.error(
+          `Não foi possível buscar dados frescos para ${cacheKey}. Usando cache se disponível.`
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-      console.log(`Inscrevendo-se no tópico: ${topic}`);
+    fetchInitialData();
+
+    if (isWsConnected && stompClientRef.current) {
+      if (subscriptionRef.current) subscriptionRef.current.unsubscribe();
+      const topic = `/topic/schedules/${rota}/${diaEnum}`;
 
       subscriptionRef.current = stompClientRef.current.subscribe(
         topic,
         (message: { body: string }) => {
-          const updatedScheduleList: ScheduleItem[] = JSON.parse(message.body);
-          console.log(
-            "Lista de horários atualizada recebida:",
-            updatedScheduleList
-          );
-          setScheduleItems(updatedScheduleList);
+          const updatedList = Array.isArray(JSON.parse(message.body))
+            ? JSON.parse(message.body)
+            : [];
+          setScheduleItems(updatedList);
+          sessionStorage.setItem(cacheKey, JSON.stringify(updatedList));
         }
       );
     }
   }, [rota, diaSelecionadoKey, isWsConnected]);
 
+  const handleJoinQueue = (item: ScheduleItem) => {
+    navigate("/FilaVirtual", { state: { horario: item } });
+  };
+
   const handleDayChange = (direction: "prev" | "next") => {
     const currentIndex = DIAS_ORDENADOS.indexOf(diaSelecionadoKey);
-    let newIndex;
-    if (direction === "prev") {
-      newIndex =
-        currentIndex === 0 ? DIAS_ORDENADOS.length - 1 : currentIndex - 1;
-    } else {
-      newIndex =
-        currentIndex === DIAS_ORDENADOS.length - 1 ? 0 : currentIndex + 1;
-    }
+    const newIndex =
+      direction === "prev"
+        ? currentIndex === 0
+          ? DIAS_ORDENADOS.length - 1
+          : currentIndex - 1
+        : currentIndex === DIAS_ORDENADOS.length - 1
+        ? 0
+        : currentIndex + 1;
     setDiaSelecionadoKey(DIAS_ORDENADOS[newIndex]);
   };
 
   return (
-    <main className="bg-[#f1f1f1] flex flex-row justify-center w-full min-h-screen">
-      <div className="bg-[#f1f1f1] w-[390px] relative flex flex-col">
-        {/* Header e Navegação */}
-        <div className="mt-[51px] ml-[19px]">
-          <button
-            className="w-11 h-11 rounded-[22px] bg-[#d9d9d9] p-0 flex items-center justify-center"
-            onClick={() => navigate(-1)}
-          >
+    <div className="bg-[#f1f1f1] flex flex-col w-full min-h-screen">
+      <header className="bg-white shadow-sm p-4 sticky top-0 z-10">
+        <div className="relative flex items-center justify-center">
+          <button className="absolute left-0 p-2" onClick={() => navigate(-1)}>
             <ArrowLeftIcon className="h-6 w-6" />
           </button>
+          <h1 className="text-xl font-bold text-gray-800">Itinerários</h1>
         </div>
-        <button
-          onClick={() => navigate("/profile")}
-          className="absolute w-16 h-16 top-[29px] right-[16px] bg-[#d9d9d9] rounded-[32px] flex items-center justify-center p-0 border-none cursor-pointer hover:bg-[#c9c9c9]"
-        >
-          <img
-            className="w-[53px] h-[53px]"
-            alt="User profile"
-            src="/vector.svg"
-          />
-        </button>
-
-        {/* Seletor de Rota */}
-        <div className="mx-2.5 mt-[15px] h-[60px] bg-[#d9d9d9] rounded-[50px] flex items-center justify-between px-6">
-          <select
-            value={rota}
-            onChange={(e) => setRota(e.target.value)}
-            className="appearance-none w-full bg-transparent border-0 focus:ring-0 font-semibold text-black text-2xl"
-          >
-            <option value="FACULDADE">Mauá → Estação</option>
-            <option value="ESTACAO">Estação → Mauá</option>
-          </select>
-          <div className="w-[39px] h-[39px] bg-[#0052a4] rounded-[19.5px] flex items-center justify-center ml-4">
-            <MapPinIcon className="w-6 h-6 text-white" />
-          </div>
-        </div>
-
-        {/* Seletor de Dia */}
-        <div className="relative mt-6 px-7 flex items-center justify-center">
+        <div className="mt-4 p-1 bg-gray-200 rounded-full flex">
           <button
-            onClick={() => handleDayChange("prev")}
-            className="absolute left-7 z-10 bg-white rounded-full shadow-md p-1"
+            onClick={() => setRota("FACULDADE")}
+            className={`w-1/2 py-2 text-center rounded-full font-semibold transition-colors ${
+              rota === "FACULDADE" ? "bg-[#0052a4] text-white" : "text-gray-600"
+            }`}
           >
-            <ChevronLeftIcon className="h-5 w-5" />
+            Mauá → Estação
           </button>
-          <div className="px-4 py-2 rounded-full bg-[#0052a4] text-white min-w-[120px] text-center">
-            <span className="font-semibold text-lg">
-              {DIAS_SEMANA_MAP[diaSelecionadoKey].display}
-            </span>
-          </div>
           <button
-            onClick={() => handleDayChange("next")}
-            className="absolute right-7 z-10 bg-white rounded-full shadow-md p-1"
+            onClick={() => setRota("ESTACAO")}
+            className={`w-1/2 py-2 text-center rounded-full font-semibold transition-colors ${
+              rota === "ESTACAO" ? "bg-[#0052a4] text-white" : "text-gray-600"
+            }`}
           >
-            <ChevronRightIcon className="h-5 w-5" />
+            Estação → Mauá
           </button>
         </div>
-
-        {/* Cabeçalho da Tabela */}
-        <div className="mx-7 mt-[30px] h-8 bg-[#0052a4] rounded-[20px] flex items-center justify-between px-12">
-          <span className="font-semibold text-white text-2xl">Veículo</span>
-          <span className="font-semibold text-white text-2xl">Horário</span>
+        <div className="relative mt-4 flex items-center justify-between px-2">
+          <button onClick={() => handleDayChange("prev")} className="p-2">
+            <ChevronLeftIcon className="h-6 w-6" />
+          </button>
+          <span className="font-semibold text-lg text-gray-700">
+            {DIAS_SEMANA_MAP[diaSelecionadoKey].display}
+          </span>
+          <button onClick={() => handleDayChange("next")} className="p-2">
+            <ChevronRightIcon className="h-6 w-6" />
+          </button>
         </div>
+      </header>
 
-        {/* Lista de Horários */}
-        <div className="mt-6 px-7">
-          {scheduleItems.length === 0 ? (
-            <p className="text-center text-gray-500">
-              Nenhum horário para este dia.
-            </p>
-          ) : (
-            scheduleItems.map((item) => (
-              <div
-                key={item.id}
-                className="flex justify-between mb-[45px] font-semibold text-black text-2xl"
-              >
-                <span className="ml-[10px] text-lg">
-                  {item.tipoVeiculo === "VAN" ? "Van" : "Micro"} - {item.placa}
-                </span>
-                <span className="mr-[28px]">{item.horario}</span>
+      <main className="flex-grow overflow-y-auto p-4 space-y-4">
+        {isLoading ? (
+          <p className="text-center text-gray-500 py-10">
+            Carregando horários...
+          </p>
+        ) : !Array.isArray(scheduleItems) || scheduleItems.length === 0 ? (
+          <p className="text-center text-gray-500 py-10">
+            Nenhum horário para este dia.
+          </p>
+        ) : (
+          scheduleItems.map((item) => (
+            <div
+              key={item.id}
+              className="bg-white p-4 rounded-xl shadow-md flex items-center justify-between gap-4"
+            >
+              <div className="flex items-center gap-4">
+                <div className="bg-blue-100 p-3 rounded-full">
+                  <Bus className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <p className="font-bold text-lg text-gray-800">
+                    {item.tipoVeiculo === "VAN" ? "Van" : "Micro-ônibus"}
+                  </p>
+                  <p className="text-sm text-gray-500">{item.placa}</p>
+                </div>
               </div>
-            ))
-          )}
-        </div>
-      </div>
-    </main>
+              <div className="text-right">
+                <p className="font-semibold text-2xl text-[#0052a4]">
+                  {item.horario}
+                </p>
+                <button
+                  onClick={() => handleJoinQueue(item)}
+                  className="mt-1 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1 hover:bg-green-600"
+                >
+                  <Ticket className="h-4 w-4" />
+                  Fila
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </main>
+    </div>
   );
 };

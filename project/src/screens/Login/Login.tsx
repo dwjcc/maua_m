@@ -14,7 +14,6 @@ export const Login = (): JSX.Element => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData({
@@ -23,7 +22,6 @@ export const Login = (): JSX.Element => {
     });
   };
 
-  // Handle login submission
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -42,7 +40,6 @@ export const Login = (): JSX.Element => {
     }
   };
 
-  // Data for input fields to enable mapping
   const inputFields = [
     {
       id: "email",
@@ -65,18 +62,7 @@ export const Login = (): JSX.Element => {
   return (
     <div className="bg-[#f1f1f1] flex flex-row justify-center w-full">
       <div className="bg-[#f1f1f1] w-[390px] h-[844px] relative">
-        {/* Back button */}
-        <Button
-          variant="ghost"
-          className="w-11 h-11 top-9 bg-[#d9d9d9] rounded-[22px] absolute left-[23px] p-0"
-          aria-label="Go back"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowLeftIcon className="w-[42px] h-[42px]" />
-        </Button>
-
         <form className="flex flex-col" onSubmit={handleLogin}>
-          {/* Input fields */}
           {inputFields.map((field) => (
             <div
               key={field.id}
@@ -97,14 +83,12 @@ export const Login = (): JSX.Element => {
             </div>
           ))}
 
-          {/* Error message */}
           {error && (
             <div className="absolute top-[420px] left-[23px] w-[343px] text-red-500 text-center">
               {error}
             </div>
           )}
 
-          {/* Forgot password link */}
           <Button
             type="button"
             variant="link"
@@ -114,7 +98,6 @@ export const Login = (): JSX.Element => {
             Esqueci minha senha
           </Button>
 
-          {/* Sign up link */}
           <Button
             type="button"
             variant="link"
@@ -124,7 +107,6 @@ export const Login = (): JSX.Element => {
             Não tem conta? Cadastre-se
           </Button>
 
-          {/* Login button */}
           <Button
             type="submit"
             className="absolute w-[343px] h-[60px] top-[590px] left-[23px] bg-[#0052a4] rounded-[50px] [font-family:'League_Spartan',Helvetica] font-semibold text-[#f1f1f1] text-4xl tracking-[0] leading-[normal]"
